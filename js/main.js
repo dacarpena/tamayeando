@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             const targetId = this.getAttribute('href');
             if (targetId === '#') return;
-            
+
             const targetElement = document.querySelector(targetId);
             if (targetElement) {
                 targetElement.scrollIntoView({
@@ -39,14 +39,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (contactForm) {
         contactForm.addEventListener('submit', async (e) => {
-            // Formspree handles the submission, but we can intercept to show loading state
-            // If using Formspree AJAX:
+            // Web3Forms handles the submission via AJAX
             e.preventDefault();
             const data = new FormData(contactForm);
-            
+
             formStatus.textContent = "Enviando mensaje...";
             formStatus.style.color = "var(--text-color)";
-            
+
             try {
                 const response = await fetch(contactForm.action, {
                     method: contactForm.method,
@@ -55,23 +54,20 @@ document.addEventListener('DOMContentLoaded', () => {
                         'Accept': 'application/json'
                     }
                 });
-                
-                if (response.ok) {
+
+                const jsonData = await response.json();
+
+                if (response.ok && jsonData.success) {
                     formStatus.textContent = "¡Gracias! Tu mensaje ha sido enviado correctamente.";
-                    formStatus.style.color = "green";
+                    formStatus.style.color = "#4CAF50";
                     contactForm.reset();
                 } else {
-                    const jsonData = await response.json();
-                    if (Object.hasOwn(jsonData, 'errors')) {
-                         formStatus.textContent = jsonData["errors"].map(error => error["message"]).join(", ");
-                    } else {
-                        formStatus.textContent = "Hubo un error al enviar el mensaje. Por favor, inténtalo de nuevo.";
-                    }
-                    formStatus.style.color = "red";
+                    formStatus.textContent = jsonData.message || "Hubo un error al enviar el mensaje. Por favor, inténtalo de nuevo.";
+                    formStatus.style.color = "#E07A5F";
                 }
             } catch (error) {
                 formStatus.textContent = "Hubo un error de conexión. Por favor, inténtalo de nuevo.";
-                formStatus.style.color = "red";
+                formStatus.style.color = "#E07A5F";
             }
         });
     }
@@ -110,7 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Hero Parallax Effect
     const heroBg = document.querySelector('.hero-bg');
     const heroContent = document.querySelector('.hero-content');
-    
+
     if (heroBg && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
         window.addEventListener('scroll', () => {
             const scrollValue = window.scrollY;
@@ -130,20 +126,20 @@ document.addEventListener('DOMContentLoaded', () => {
     // Mouse Move Glow Effect (Only for devices with hover capability)
     if (window.matchMedia('(hover: hover)').matches) {
         const cards = document.querySelectorAll('.tour-card, .destination-card, .contact-wrapper, .testimonial-card');
-        
+
         cards.forEach(card => {
             card.addEventListener('mousemove', (e) => {
                 const rect = card.getBoundingClientRect();
                 const x = e.clientX - rect.left;
                 const y = e.clientY - rect.top;
-                
+
                 card.style.setProperty('--mouse-x', `${x}px`);
                 card.style.setProperty('--mouse-y', `${y}px`);
-                
+
                 // Subtle Tilt Effect
                 const xPct = (x / rect.width) - 0.5;
                 const yPct = (y / rect.height) - 0.5;
-                
+
                 // Limit tilt to small angles (e.g., 5deg) for elegance
                 card.style.transform = `perspective(1000px) rotateX(${yPct * -4}deg) rotateY(${xPct * 4}deg) scale3d(1.02, 1.02, 1.02)`;
             });
@@ -173,21 +169,21 @@ document.addEventListener('DOMContentLoaded', () => {
             // Linear interpolation for smooth following
             const dx = mouseX - cursorX;
             const dy = mouseY - cursorY;
-            
+
             cursorX += dx * 0.1;
             cursorY += dy * 0.1;
-            
+
             cursor.style.left = `${cursorX}px`;
             cursor.style.top = `${cursorY}px`;
-            
+
             requestAnimationFrame(animateCursor);
         }
-        
+
         animateCursor();
 
         // Hover effect for interactive elements
         const interactiveElements = document.querySelectorAll('a, button, .tour-card, .destination-card, input, textarea');
-        
+
         interactiveElements.forEach(el => {
             el.addEventListener('mouseenter', () => {
                 cursor.classList.add('active');
@@ -200,7 +196,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Back to Top Button
     const backToTopBtn = document.getElementById('backToTop');
-    
+
     window.addEventListener('scroll', () => {
         if (window.scrollY > 300) {
             backToTopBtn.classList.add('visible');
