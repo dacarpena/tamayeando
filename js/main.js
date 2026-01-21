@@ -87,4 +87,132 @@ document.addEventListener('DOMContentLoaded', () => {
             header.style.padding = "15px 0";
         }
     });
+
+    // Scroll Animations (Intersection Observer)
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: "0px 0px -50px 0px"
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('active');
+                observer.unobserve(entry.target); // Only animate once
+            }
+        });
+    }, observerOptions);
+
+    document.querySelectorAll('.reveal').forEach(el => {
+        observer.observe(el);
+    });
+
+    // Hero Parallax Effect
+    const heroBg = document.querySelector('.hero-bg');
+    const heroContent = document.querySelector('.hero-content');
+    
+    if (heroBg && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        window.addEventListener('scroll', () => {
+            const scrollValue = window.scrollY;
+            if (scrollValue < window.innerHeight) {
+                // Parallax for background (slower)
+                heroBg.style.transform = `translateY(${scrollValue * 0.5}px)`;
+                // Parallax for content (slightly faster fade out/up)
+                heroContent.style.transform = `translateY(${scrollValue * 0.3}px)`;
+                heroContent.style.opacity = 1 - (scrollValue / 700);
+            }
+        });
+    }
+
+    // Page Load Transition
+    document.body.classList.add('loaded');
+
+    // Mouse Move Glow Effect (Only for devices with hover capability)
+    if (window.matchMedia('(hover: hover)').matches) {
+        const cards = document.querySelectorAll('.tour-card, .destination-card, .contact-wrapper, .testimonial-card');
+        
+        cards.forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                card.style.setProperty('--mouse-x', `${x}px`);
+                card.style.setProperty('--mouse-y', `${y}px`);
+                
+                // Subtle Tilt Effect
+                const xPct = (x / rect.width) - 0.5;
+                const yPct = (y / rect.height) - 0.5;
+                
+                // Limit tilt to small angles (e.g., 5deg) for elegance
+                card.style.transform = `perspective(1000px) rotateX(${yPct * -4}deg) rotateY(${xPct * 4}deg) scale3d(1.02, 1.02, 1.02)`;
+            });
+
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'none';
+                card.style.setProperty('--mouse-x', `50%`);
+                card.style.setProperty('--mouse-y', `50%`);
+            });
+        });
+    }
+
+    // Custom Cursor Follower
+    if (window.matchMedia('(hover: hover)').matches) {
+        const cursor = document.querySelector('.cursor-follower');
+        let mouseX = 0;
+        let mouseY = 0;
+        let cursorX = 0;
+        let cursorY = 0;
+
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+
+        function animateCursor() {
+            // Linear interpolation for smooth following
+            const dx = mouseX - cursorX;
+            const dy = mouseY - cursorY;
+            
+            cursorX += dx * 0.1;
+            cursorY += dy * 0.1;
+            
+            cursor.style.left = `${cursorX}px`;
+            cursor.style.top = `${cursorY}px`;
+            
+            requestAnimationFrame(animateCursor);
+        }
+        
+        animateCursor();
+
+        // Hover effect for interactive elements
+        const interactiveElements = document.querySelectorAll('a, button, .tour-card, .destination-card, input, textarea');
+        
+        interactiveElements.forEach(el => {
+            el.addEventListener('mouseenter', () => {
+                cursor.classList.add('active');
+            });
+            el.addEventListener('mouseleave', () => {
+                cursor.classList.remove('active');
+            });
+        });
+    }
+
+    // Back to Top Button
+    const backToTopBtn = document.getElementById('backToTop');
+    
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 300) {
+            backToTopBtn.classList.add('visible');
+        } else {
+            backToTopBtn.classList.remove('visible');
+        }
+    });
+
+    backToTopBtn.addEventListener('click', () => {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    });
 });
