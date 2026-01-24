@@ -4,18 +4,32 @@ document.addEventListener('DOMContentLoaded', () => {
     const navMenu = document.querySelector('.nav-menu');
     const navLinks = document.querySelectorAll('.nav-menu a');
 
-    mobileBtn.addEventListener('click', () => {
-        navMenu.classList.toggle('active');
-        mobileBtn.classList.toggle('active');
-    });
-
-    // Close menu when clicking a link
-    navLinks.forEach(link => {
-        link.addEventListener('click', () => {
-            navMenu.classList.remove('active');
-            mobileBtn.classList.remove('active');
+    if (mobileBtn && navMenu) {
+        mobileBtn.addEventListener('click', () => {
+            const isActive = navMenu.classList.toggle('active');
+            mobileBtn.classList.toggle('active');
+            // Prevent scrolling when menu is open
+            document.body.style.overflow = isActive ? 'hidden' : '';
         });
-    });
+
+        // Close menu when clicking a link
+        navLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                navMenu.classList.remove('active');
+                mobileBtn.classList.remove('active');
+                document.body.style.overflow = '';
+            });
+        });
+
+        // Close menu on escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && navMenu.classList.contains('active')) {
+                navMenu.classList.remove('active');
+                mobileBtn.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        });
+    }
 
     // Smooth Scrolling for Anchor Links (polyfill-like behavior if needed)
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
